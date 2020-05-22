@@ -2,34 +2,34 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './Burger.module.css';
-import BurgerIngerdient from './BurgerIngerdient/BurgerIngerdient';
+import BurgerIngredient from './BurgerIngredient/BurgerIngredient';
 
 const Burger = (props) => {
-  let transformedIngerdients = Object.keys(props.ingerdients)
-    .map((ingerdient) => {
-      return [...Array(props.ingerdients[ingerdient])].map((_, index) => (
-        <BurgerIngerdient key={ingerdient + index} type={ingerdient} />
+  let transformedIngredients = Object.keys(props.ingredients)
+    .map((ingredient) => {
+      return [...Array(props.ingredients[ingredient])].map((_, index) => (
+        <BurgerIngredient key={ingredient + index} type={ingredient} />
       ));
     })
     .reduce((arr, el) => {
       return arr.concat(el);
     }, []);
 
-  if (transformedIngerdients.length === 0) {
-    transformedIngerdients = <p>Please start adding ingerdients!</p>;
+  if (transformedIngredients.length === 0) {
+    transformedIngredients = <p>Please start adding ingredients!</p>;
   }
 
   return (
     <div className={styles.Burger}>
-      <BurgerIngerdient type="bread-top" />
-      {transformedIngerdients}
-      <BurgerIngerdient type="bread-bottom" />
+      <BurgerIngredient type="bread-top" />
+      {transformedIngredients}
+      <BurgerIngredient type="bread-bottom" />
     </div>
   );
 };
 
 Burger.prototype = {
-  ingerdients: PropTypes.object.isRequired,
+  ingredients: PropTypes.object.isRequired,
 };
 
 export default Burger;
