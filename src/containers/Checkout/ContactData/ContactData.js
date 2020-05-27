@@ -3,33 +3,109 @@ import Button from '../../../components/UI/Button/Button';
 import styles from './ContactData.module.css';
 import axios from '../../../axios.orders';
 import Spinner from '../../../components/UI/Spinner/Spinner';
+import Input from '../../../components/UI/Input/Input';
 
 class ContactData extends Component {
   state = {
-    name: '',
-    email: '',
-    address: {
-      street: '',
-      postalCode: '',
+    orderForm: {
+      name: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Name',
+        },
+        value: '',
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
+      },
+      email: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'email',
+          placeholder: 'Email',
+        },
+        value: '',
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
+      },
+      country: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'email',
+          placeholder: 'Country',
+        },
+        value: '',
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
+      },
+      street: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Street',
+        },
+        value: '',
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
+      },
+      postalCode: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Zip Code',
+        },
+        value: '',
+        validation: {
+          required: true,
+          length: 5,
+        },
+        valid: false,
+        touched: false,
+      },
+      deliveryMethod: {
+        elementType: 'select',
+        elementConfig: {
+          options: [
+            { value: 'fastest', displayValue: 'Fastest' },
+            { value: 'cheapest', displayValue: 'Cheapest' },
+          ],
+        },
+        value: 'fastest',
+        validation: {},
+        valid: true,
+      },
     },
+    isOrderFormValid: false,
     loading: false,
   };
 
   orderHandler = (event) => {
     event.preventDefault();
+    const formData = Object.keys(this.state.orderForm)
+      .map((input) => {
+        return { name: input, value: this.state.orderForm[input].value };
+      })
+      .reduce((obj, el) => {
+        obj[el.name] = el.value;
+        return obj;
+      }, {});
+
     const order = {
       ingredients: this.props.ingredients,
       price: this.props.price,
-      customer: {
-        name: 'Islam Ibrahim',
-        email: 'test@test.com',
-        address: {
-          street: 'test street',
-          zip: '12345',
-          country: 'Egypt',
-        },
-        deliveryMethod: 'fastest',
-      },
+      orderData: formData,
     };
 
     this.setState({ loading: true });
@@ -46,14 +122,66 @@ class ContactData extends Component {
       });
   };
 
+  inputChangedHandler = (event, inputIdentfier) => {
+    const updateOrderForm = { ...this.state.orderForm };
+    // in nested objects, only first level object will be cloned and others will still be pointing at the original object, so this ensures a deep copy
+    const updateOrderInput = { ...updateOrderForm[inputIdentfier] };
+    updateOrderInput.value = event.target.value;
+    updateOrderInput.valid = this.checkValidity(
+      updateOrderInput.value,
+      updateOrderInput.validation
+    );
+    updateOrderInput.touched = true;
+    updateOrderForm[inputIdentfier] = updateOrderInput;
+
+    let fromIsValid = true;
+    for (let identfier in updateOrderForm) {
+      if (!updateOrderForm[identfier].valid) {
+        fromIsValid = false;
+        break;
+      }
+    }
+
+    this.setState({
+      orderForm: updateOrderForm,
+      isOrderFormValid: fromIsValid,
+    });
+  };
+
+  checkValidity = (value, rules) => {
+    let isValid = true;
+
+    if (rules.required) isValid = value.trim() !== '' && isValid;
+
+    if (rules.length) isValid = value.length === rules.length && isValid;
+
+    return isValid;
+  };
+
   render() {
     let form = (
-      <form>
-        <input name="name" type="text" placeholder="Your name" />
-        <input name="email" type="text" placeholder="Your email" />
-        <input name="street" type="text" placeholder="Your street" />
-        <input name="postal" type="text" placeholder="Your Postal code" />
-        <Button btnType="Success" clicked={this.orderHandler}>
+      <form onSubmit={this.orderHandler}>
+        {Object.keys(this.state.orderForm).map((input) => {
+          return (
+            <Input
+              key={input}
+              elementType={this.state.orderForm[input].elementType}
+              elementConfig={this.state.orderForm[input].elementConfig}
+              value={this.state.orderForm[input].value}
+              changed={(event) => this.inputChangedHandler(event, input)}
+              invalid={
+                !this.state.orderForm[input].valid &&
+                this.state.orderForm[input].validation
+              }
+              touched={this.state.orderForm[input].touched}
+            />
+          );
+        })}
+        <Button
+          btnType="Success"
+          clicked={this.orderHandler}
+          disabled={!this.state.isOrderFormValid}
+        >
           Order
         </Button>
       </form>
