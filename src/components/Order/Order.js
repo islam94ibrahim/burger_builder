@@ -19,6 +19,7 @@ const Order = (props) => {
             margin: '0 8px',
             border: '1px solid #ccc',
             padding: '5px',
+            boxSizing: 'border-box',
           }}
           key={index}
         >
@@ -26,7 +27,6 @@ const Order = (props) => {
         </span>
       );
     });
-  console.log(ingredients);
   return (
     <div className={styles.Order}>
       <p>Ingredients: {ingredients}</p>

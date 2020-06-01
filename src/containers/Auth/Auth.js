@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
+import Button from '../../components/UI/Button/Button';
+import Input from '../../components/UI/Input/Input';
 import styles from './Auth.module.css';
 import * as actions from '../../store/actions/index';
-import { connect } from 'react-redux';
 import Spinner from '../../components/UI/Spinner/Spinner';
-import { Redirect } from 'react-router-dom';
+import { updateObject, checkValidity } from '../../shared/utility';
 
 class Auth extends Component {
   state = {
@@ -48,34 +49,19 @@ class Auth extends Component {
       this.props.onSetAuthRedirectPath();
   };
 
-  checkValidity = (value, rules) => {
-    let isValid = true;
-
-    if (rules.required) isValid = value.trim() !== '' && isValid;
-
-    if (rules.length) isValid = value.length === rules.length && isValid;
-
-    if (rules.minLength) isValid = value.length >= rules.minLength && isValid;
-
-    if (rules.isEmail) {
-      const pattern = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      isValid = pattern.test(value) && isValid;
-    }
-
-    return isValid;
-  };
-
   inputChangedHandler = (event, control) => {
-    const updatedControls = { ...this.state.controls };
     // in nested objects, only first level object will be cloned and others will still be pointing at the original object, so this ensures a deep copy
-    const updateControl = { ...updatedControls[control] };
-    updateControl.value = event.target.value;
-    updateControl.valid = this.checkValidity(
-      updateControl.value,
-      updateControl.validation
-    );
-    updateControl.touched = true;
-    updatedControls[control] = updateControl;
+    const updateControl = updateObject(this.state.controls[control], {
+      value: event.target.value,
+      valid: checkValidity(
+        event.target.value,
+        this.state.controls[control].validation
+      ),
+      touched: true,
+    });
+    const updatedControls = updateObject(this.state.controls, {
+      [control]: updateControl,
+    });
 
     this.setState({ controls: updatedControls });
   };

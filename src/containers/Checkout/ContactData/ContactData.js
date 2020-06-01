@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import Button from '../../../components/UI/Button/Button';
 import styles from './ContactData.module.css';
 import axios from '../../../axios.orders';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
-import { connect } from 'react-redux';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import * as actions from '../../../store/actions/index';
+import { updateObject, checkValidity } from '../../../shared/utility';
 
 class ContactData extends Component {
   state = {
@@ -115,16 +117,21 @@ class ContactData extends Component {
   };
 
   inputChangedHandler = (event, inputIdentfier) => {
-    const updateOrderForm = { ...this.state.orderForm };
     // in nested objects, only first level object will be cloned and others will still be pointing at the original object, so this ensures a deep copy
-    const updateOrderInput = { ...updateOrderForm[inputIdentfier] };
-    updateOrderInput.value = event.target.value;
-    updateOrderInput.valid = this.checkValidity(
-      updateOrderInput.value,
-      updateOrderInput.validation
+    const updateOrderInput = updateObject(
+      this.state.orderForm[inputIdentfier],
+      {
+        value: event.target.value,
+        valid: checkValidity(
+          event.target.value,
+          this.state.orderForm[inputIdentfier].validation
+        ),
+        touched: true,
+      }
     );
-    updateOrderInput.touched = true;
-    updateOrderForm[inputIdentfier] = updateOrderInput;
+    const updateOrderForm = updateObject(this.state.orderForm, {
+      [inputIdentfier]: updateOrderInput,
+    });
 
     let fromIsValid = true;
     for (let identfier in updateOrderForm) {
@@ -138,16 +145,6 @@ class ContactData extends Component {
       orderForm: updateOrderForm,
       isOrderFormValid: fromIsValid,
     });
-  };
-
-  checkValidity = (value, rules) => {
-    let isValid = true;
-
-    if (rules.required) isValid = value.trim() !== '' && isValid;
-
-    if (rules.length) isValid = value.length === rules.length && isValid;
-
-    return isValid;
   };
 
   render() {
