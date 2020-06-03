@@ -1,5 +1,7 @@
 # Burger Builder
 
+- This is a sample project showcasing my skills in writing (React class based components, React Router, Redux, Redux thunk, Firebase as backend) applications.
+
 ## Requirements
 
 - Node JS
