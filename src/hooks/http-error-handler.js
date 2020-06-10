@@ -16,7 +16,12 @@ export default (httpClient) => {
   useEffect(() => {
     httpClient.interceptors.request.eject(requestInterceptor);
     httpClient.interceptors.response.eject(responseInterceptor);
-  }, [requestInterceptor, responseInterceptor]);
+  }, [
+    httpClient.interceptors.request,
+    httpClient.interceptors.response,
+    requestInterceptor,
+    responseInterceptor,
+  ]);
 
   const errorViewedHandler = () => setError(null);
 

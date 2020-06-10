@@ -10,6 +10,8 @@ import Spinner from '../../components/UI/Spinner/Spinner';
 import { updateObject, checkValidity } from '../../shared/utility';
 
 const Auth = (props) => {
+  const { buildingBurger, authRedirectPath, onSetAuthRedirectPath } = props;
+
   const [controls, setControls] = useState({
     email: {
       elementType: 'input',
@@ -44,9 +46,8 @@ const Auth = (props) => {
   const [isSignUp, setIsSignUp] = useState(true);
 
   useEffect(() => {
-    if (!props.buildingBurger && props.authRedirectPath !== '/')
-      props.onSetAuthRedirectPath();
-  }, []);
+    if (!buildingBurger && authRedirectPath !== '/') onSetAuthRedirectPath();
+  }, [buildingBurger, authRedirectPath, onSetAuthRedirectPath]);
 
   const inputChangedHandler = (event, control) => {
     // in nested objects, only first level object will be cloned and others will still be pointing at the original object, so this ensures a deep copy

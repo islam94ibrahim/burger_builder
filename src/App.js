@@ -16,9 +16,11 @@ const Auth = lazy(() => import('./containers/Auth/Auth'));
 const Logout = lazy(() => import('./containers/Auth/Logout/Logout'));
 
 const App = (props) => {
+  const { onAuthStateCheck } = props;
+
   useEffect(() => {
-    props.onAuthStateCheck();
-  }, []);
+    onAuthStateCheck();
+  }, [onAuthStateCheck]);
 
   let routes = (
     <Switch>

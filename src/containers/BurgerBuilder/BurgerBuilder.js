@@ -11,11 +11,12 @@ import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import * as actions from '../../store/actions/index';
 
 export const BurgerBuilder = (props) => {
+  const { onFetchIngredients } = props;
   const [purchasing, setPurchasing] = useState(false);
 
   useEffect(() => {
-    props.onFetchIngredients();
-  }, []);
+    onFetchIngredients();
+  }, [onFetchIngredients]);
 
   const isPurchasable = (ingredients) => {
     const sum = Object.keys(ingredients)
