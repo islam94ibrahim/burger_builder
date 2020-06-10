@@ -1,42 +1,36 @@
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 
 import Modal from '../../components/UI/Modal/Modal';
 
 const withErrorHandler = (WrappedComponent, axios) => {
-  return class extends Component {
-    state = {
-      error: null,
-    };
+  return (props) => {
+    const [error, setError] = useState(null);
 
-    componentWillMount() {
-      this.requestInterceptor = axios.interceptors.request.use((request) => {
-        this.setState({ error: null });
-        return request;
-      });
+    const requestInterceptor = axios.interceptors.request.use((request) => {
+      setError(null);
+      return request;
+    });
 
-      this.responseInterceptor = axios.interceptors.response.use(
-        (response) => response,
-        (error) => this.setState({ error })
-      );
-    }
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => setError(error)
+    );
 
-    componentWillUnmount() {
-      axios.interceptors.request.eject(this.requestInterceptor);
-      axios.interceptors.response.eject(this.responseInterceptor);
-    }
+    useEffect(() => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    }, [requestInterceptor, responseInterceptor]);
 
-    errorViewedHandler = () => this.setState({ error: null });
+    const errorViewedHandler = () => setError(null);
 
-    render() {
-      return (
-        <Fragment>
-          <Modal show={this.state.error} modalClose={this.errorViewedHandler}>
-            {this.state.error ? this.state.error.message : null}
-          </Modal>
-          <WrappedComponent {...this.props} />
-        </Fragment>
-      );
-    }
+    return (
+      <Fragment>
+        <Modal show={error} modalClose={errorViewedHandler}>
+          {error ? error.message : null}
+        </Modal>
+        <WrappedComponent {...props} />
+      </Fragment>
+    );
   };
 };
 
